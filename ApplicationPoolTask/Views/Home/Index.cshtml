@@ -3,28 +3,26 @@
     ViewBag.Title = "Application Pool Management";
 }
 
-<h2>Application Pool Management  </h2>
+<h3>Application Pool Management  </h3>
 
 
     <div>
         <div>
-            <div class="dropdownDiv">
-                <select class="dropdown">
-                    <option value="">Choose name</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                </select>
+             <div class="dropdownDiv">
+                 @Html.DropDownList("AppPoolNames", new SelectList(Model.AppPoolNames), "أختر أسم", new { @class = "dropdown", id= "appPoolDropdown" })
+                 <small class="error-message"  id="DDL-error-message" style="color: red; display: none;"></small>
             </div>
-            <div class="dropdownDiv">
-                <input type="text" class="inputTxt" placeholder="Enter application pool name" id="appPoolNameInput">
+         
+            <div class="text-center">
+                <button type="button" id="statusStartedBadge" class="btn btn-success" style="display: none;" disabled>مفعل</button>
+                <button type="button" id="statusStoppedBadge" class="btn btn-danger" style="display: none;" disabled>معطل</button>
             </div>
+
             <div class="row">
                 <div class="col-md-10 btnBox">
-                    <button class="btn btn-info btn-lg" onclick="location.href='@Url.Action("Start", "Home")'" >Start</button>
-                    <button class="btn btn btn-lg" onclick="location.href='@Url.Action("Recycle", "Home")'">Recycle</button>
-                    <button class="btn btn-primary btn-lg" onclick="location.href='@Url.Action("Stop", "Home")'">Stop</button>
+                    <button class="btn btn-info btn-lg" onclick="location.href='@Url.Action("Start", "Home")'" >أبدا</button>
+                    <button class="btn btn-secondary btn-lg" onclick="location.href='@Url.Action("Recycle", "Home")'">أعاده التشغيل</button>
+                    <button class="btn btn-primary btn-lg" onclick="location.href='@Url.Action("Stop", "Home")'">ايقاف</button>
                 </div>
             </div>
 
@@ -33,7 +31,43 @@
 
 @section Scripts
 {
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
-    integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <script>
+        document.getElementById("appPoolDropdown").addEventListener('change', function(){
+            var selectedValue = document.getElementById("appPoolDropdown").value;
+
+                if (selectedValue === "أختر أسم") {
+                    document.getElementById("statusStartedBadge").style.display = "none";
+                    document.getElementById("statusStoppedBadge").style.display = "none";
+                    document.getElementById("DDL-error-message").style.display="block";
+                     document.getElementById("DDL-error-message").textContent = "nonononon";
+
+
+                }
+                else{
+                      $.ajax({
+                        url: '@Url.Action("GetAppPoolStatus", "Home")',
+                        type: 'GET',
+                        data: { appPoolName: selectedValue },
+                        success: function (response) {
+                            if (response === "Started") {
+                                document.getElementById("statusStartedBadge").style.display = "block";
+                                document.getElementById("statusStoppedBadge").style.display = "none";
+
+                            } else {
+                              document.getElementById("statusStartedBadge").style.display = "none";
+                               document.getElementById("statusStoppedBadge").style.display = "block";
+                            }
+                        },
+                        error: function () {
+                             document.getElementById("statusStartedBadge").style.display = "none";
+                             document.getElementById("statusStoppedBadge").style.display = "none";
+                        }
+                    });
+                }
+        })
+
+
+    </script>
+
 }

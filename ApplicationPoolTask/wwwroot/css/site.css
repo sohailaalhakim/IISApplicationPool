@@ -160,18 +160,19 @@ p {
 }
 
 .dropdown {
-    width: 420px;
-    border-width: 1px;
-    border-color: #888888;
+    height: 60px;
+    background: #fff;
+    padding: 20px;
+    font-size: 18px;
     font-weight: 400;
-    font-size: 0.8571em;
-    line-height: 1.35em;
-    margin: 10px 1px;
-    border-radius: 0.1875rem;
-    padding: 11px 22px;
+    border-radius: 8px;
+    align-items: center;
     cursor: pointer;
-    color: #888888;
-    background-color: #FFFFFF;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    width: 399px;
+    border: 1px solid grey;
+    padding: 11px 22px;
+    margin: 10px 1px;
 }
 
 .inputTxt {
@@ -181,4 +182,8 @@ p {
 ::placeholder {
     font-size: 12px;
     opacity: 1;
+}
+
+.text-center {
+    justify-content: center;
 }

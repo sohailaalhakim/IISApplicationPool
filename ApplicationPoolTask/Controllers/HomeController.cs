@@ -1,4 +1,5 @@
 ﻿using ApplicationPoolTask.Models;
+using ApplicationPoolTask.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Web.Administration;
 using System.Diagnostics;
@@ -16,7 +17,20 @@ namespace ApplicationPoolTask.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            using (ServerManager iisManager = new ServerManager())
+            {
+                List<string> appPoolNames = iisManager.ApplicationPools
+                    .Select(appPool => appPool.Name)
+                    .ToList();
+
+                // Create a view model and pass the list of appPoolNames to the view
+                var viewModel = new AppPoolViewModel
+                {
+                    AppPoolNames = appPoolNames
+                };
+
+                return View(viewModel);
+            }
         }
 
         public ActionResult Start()
@@ -123,17 +137,27 @@ namespace ApplicationPoolTask.Controllers
 
             return RedirectToAction("Index");
         }
-    
-    //public IActionResult RecycleAppPools()
-    //    {
-    //        ServerManager serverManager = new ServerManager();
-    //        ApplicationPoolCollection appPools = serverManager.ApplicationPools;
-    //        foreach (ApplicationPool ap in appPools)
-    //        {
-    //            ap.Recycle();
-    //        }
 
-    //    }
+
+        public ActionResult GetAppPoolStatus(string appPoolName)
+        {
+            using (ServerManager iisManager = new ServerManager())
+            {
+                ApplicationPool appPool = iisManager.ApplicationPools[appPoolName];
+                if (appPool != null)
+                {
+                    if (appPool.State == ObjectState.Started || appPool.State == ObjectState.Starting)
+                    {
+                        return Content("Started");
+                    }
+                    else if (appPool.State == ObjectState.Stopped || appPool.State == ObjectState.Stopping)
+                    {
+                        return Content("Stopped");
+                    }
+                }
+            }
+            return Content("Not Found");
+        }
         public IActionResult Privacy()
         {
             return View();
