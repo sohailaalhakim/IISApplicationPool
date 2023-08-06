@@ -35,12 +35,12 @@
     <script>
         document.getElementById("appPoolDropdown").addEventListener('change', function(){
             var selectedValue = document.getElementById("appPoolDropdown").value;
-
+             console.log(selectedValue, "selected value ");
                 if (selectedValue === "أختر أسم") {
                     document.getElementById("statusStartedBadge").style.display = "none";
                     document.getElementById("statusStoppedBadge").style.display = "none";
                     document.getElementById("DDL-error-message").style.display="block";
-                     document.getElementById("DDL-error-message").textContent = "nonononon";
+                    document.getElementById("DDL-error-message").textContent = "nonononon";
 
 
                 }

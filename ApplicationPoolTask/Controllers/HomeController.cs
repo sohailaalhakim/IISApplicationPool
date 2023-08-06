@@ -23,7 +23,6 @@ namespace ApplicationPoolTask.Controllers
                     .Select(appPool => appPool.Name)
                     .ToList();
 
-                // Create a view model and pass the list of appPoolNames to the view
                 var viewModel = new AppPoolViewModel
                 {
                     AppPoolNames = appPoolNames
@@ -96,45 +95,49 @@ namespace ApplicationPoolTask.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                throw;
             }
             return RedirectToAction("Index");
         }
         public ActionResult Recycle()
         {
-
-            using (ServerManager serverManager = new ServerManager())
+            try
             {
-                ApplicationPool appPool = serverManager.ApplicationPools["testTask"];
-                if (appPool != null)
+                using (ServerManager serverManager = new ServerManager())
                 {
-                    if (appPool.State == ObjectState.Started || appPool.State == ObjectState.Starting)
+                    ApplicationPool appPool = serverManager.ApplicationPools["testTask"];
+                    if (appPool != null)
                     {
-                        // Wait for the app pool to finish starting or stopping
-                        while (appPool.State == ObjectState.Starting || appPool.State == ObjectState.Stopping)
+                        if (appPool.State == ObjectState.Started || appPool.State == ObjectState.Starting)
                         {
-                            System.Threading.Thread.Sleep(1000);
-                            appPool = serverManager.ApplicationPools["testTask"];
-                        }
-
-                        if (appPool.State != ObjectState.Stopped)
-                        {
-                            // Stop the app pool if it isn't already stopped
-                            appPool.Stop();
-
-                            // Wait for the app pool to finish stopping
-                            while (appPool.State == ObjectState.Stopping)
+                            // Wait for the app pool to finish starting or stopping
+                            while (appPool.State == ObjectState.Starting || appPool.State == ObjectState.Stopping)
                             {
                                 System.Threading.Thread.Sleep(1000);
                                 appPool = serverManager.ApplicationPools["testTask"];
                             }
+
+                            if (appPool.State != ObjectState.Stopped)
+                            {
+                                // Stop the app pool if it isn't already stopped
+                                appPool.Stop();
+
+                                // Wait for the app pool to finish stopping
+                                while (appPool.State == ObjectState.Stopping)
+                                {
+                                    System.Threading.Thread.Sleep(1000);
+                                    appPool = serverManager.ApplicationPools["testTask"];
+                                }
+                            }
                         }
+                        // Start the app pool
+                        appPool.Start();
                     }
-                    // Start the app pool
-                    appPool.Start();
                 }
             }
-
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
             return RedirectToAction("Index");
         }
 
