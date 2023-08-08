@@ -32,14 +32,14 @@ namespace ApplicationPoolTask.Controllers
             }
         }
 
-        public ActionResult Start()
+        public ActionResult Start(string appPoolName)
         {
             try
             {
                 using (ServerManager iisManager = new ServerManager())
                 {
+                    var appPool = iisManager.ApplicationPools[appPoolName];
 
-                    var appPool = iisManager.ApplicationPools["testTask"];
                     if (appPool != null)
                     {
                         if (appPool.State == ObjectState.Stopped || appPool.State == ObjectState.Stopping)
@@ -64,13 +64,14 @@ namespace ApplicationPoolTask.Controllers
             }
             return RedirectToAction("Index");
         }
-        public ActionResult Stop()
+        
+        public ActionResult Stop (string appPoolName)
         {
             try
             {
                 using (ServerManager iisManager = new ServerManager())
                 {
-                    var appPool = iisManager.ApplicationPools["testTask"];
+                    var appPool = iisManager.ApplicationPools[appPoolName];
                     if (appPool != null)
                     {
                         if (appPool.State == ObjectState.Started || appPool.State == ObjectState.Starting)
@@ -82,10 +83,7 @@ namespace ApplicationPoolTask.Controllers
                             appPool.Recycle();
                         }
                     }
-                    else
-                    {
-                        throw new Exception("The 'testTask' application pool does not exist.");
-                    }
+
                 }
             }
             catch (System.Runtime.InteropServices.COMException ex)
@@ -95,16 +93,18 @@ namespace ApplicationPoolTask.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                throw;
             }
             return RedirectToAction("Index");
         }
-        public ActionResult Recycle()
+
+        public ActionResult Recycle(string appPoolName)
         {
             try
             {
                 using (ServerManager serverManager = new ServerManager())
                 {
-                    ApplicationPool appPool = serverManager.ApplicationPools["testTask"];
+                    ApplicationPool appPool = serverManager.ApplicationPools[appPoolName];
                     if (appPool != null)
                     {
                         if (appPool.State == ObjectState.Started || appPool.State == ObjectState.Starting)
@@ -112,8 +112,8 @@ namespace ApplicationPoolTask.Controllers
                             // Wait for the app pool to finish starting or stopping
                             while (appPool.State == ObjectState.Starting || appPool.State == ObjectState.Stopping)
                             {
-                                System.Threading.Thread.Sleep(1000);
-                                appPool = serverManager.ApplicationPools["testTask"];
+                                //System.Threading.Thread.Sleep(1000);
+                                appPool = serverManager.ApplicationPools[appPoolName];
                             }
 
                             if (appPool.State != ObjectState.Stopped)
@@ -124,10 +124,11 @@ namespace ApplicationPoolTask.Controllers
                                 // Wait for the app pool to finish stopping
                                 while (appPool.State == ObjectState.Stopping)
                                 {
-                                    System.Threading.Thread.Sleep(1000);
-                                    appPool = serverManager.ApplicationPools["testTask"];
+                                    //System.Threading.Thread.Sleep(1000);
+                                    appPool = serverManager.ApplicationPools[appPoolName];
                                 }
                             }
+
                         }
                         // Start the app pool
                         appPool.Start();
@@ -144,21 +145,35 @@ namespace ApplicationPoolTask.Controllers
 
         public ActionResult GetAppPoolStatus(string appPoolName)
         {
-            using (ServerManager iisManager = new ServerManager())
+            try
             {
-                ApplicationPool appPool = iisManager.ApplicationPools[appPoolName];
-                if (appPool != null)
+                using (ServerManager iisManager = new ServerManager())
                 {
-                    if (appPool.State == ObjectState.Started || appPool.State == ObjectState.Starting)
+                    ApplicationPool appPool = iisManager.ApplicationPools[appPoolName];
+                    if (appPool != null)
                     {
-                        return Content("Started");
+                        if (appPool.State == ObjectState.Started || appPool.State == ObjectState.Starting)
+                        {
+                            return Content("Started");
+                        }
+                        else if (appPool.State == ObjectState.Stopped || appPool.State == ObjectState.Stopping)
+                        {
+                            return Content("Stopped");
+                        }
                     }
-                    else if (appPool.State == ObjectState.Stopped || appPool.State == ObjectState.Stopping)
-                    {
-                        return Content("Stopped");
-                    }
+
                 }
             }
+            catch (System.Runtime.InteropServices.COMException ex)
+            {
+                Console.WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+
             return Content("Not Found");
         }
         public IActionResult Privacy()
@@ -173,87 +188,3 @@ namespace ApplicationPoolTask.Controllers
         }
     }
 }
-
-//public ActionResult Start(string appPoolName)
-//{
-//    using (ServerManager iisManager = new ServerManager())
-//    {
-//        var appPool = iisManager.ApplicationPools[appPoolName];
-//        if (appPool != null)
-//        {
-//            appPool.Start();
-//        }
-//    }
-//    return RedirectToAction("Index");
-//}
-
-
-//public ActionResult Stop(string appPoolName)
-//{
-//    using (ServerManager iisManager = new ServerManager())
-//    {
-//        var appPool = iisManager.ApplicationPools[appPoolName];
-//        if (appPool != null)
-//        {
-//            appPool.Stop();
-//            ViewBag.Message = "Application Pool stopped successfully!";
-//        }
-//        else
-//        {
-//            ViewBag.Message = "Invalid application pool name: " + appPoolName;
-//        }
-//    }
-//    return RedirectToAction("Index");
-//}
-
-////////////////////////////////////////////////////////////////////////
-//using (ServerManager serverManager = new ServerManager())
-//{
-//    ApplicationPool appPool = serverManager.ApplicationPools["testTask"];
-//    if (appPool != null)
-//    {
-//        //Get the current state of the app pool
-//        bool appPoolRunning = appPool.State == ObjectState.Started || appPool.State == ObjectState.Starting;
-//        bool appPoolStopped = appPool.State == ObjectState.Stopped || appPool.State == ObjectState.Stopping;
-
-//        //The app pool is running, so stop it first.
-//        if (appPoolRunning)
-//        {
-//            //Wait for the app to finish before trying to stop
-//            while (appPool.State == ObjectState.Starting) { System.Threading.Thread.Sleep(1000); }
-
-//            //Stop the app if it isn't already stopped
-//            if (appPool.State != ObjectState.Stopped)
-//            {
-//                appPool.Stop();
-//            }
-//            appPoolStopped = true;
-//        }
-
-//        //Only try restart the app pool if it was running in the first place, because there may be a reason it was not started.
-//        if (appPoolStopped && appPoolRunning)
-//        {
-//            //Wait for the app to finish before trying to start
-//            while (appPool.State == ObjectState.Stopping) { System.Threading.Thread.Sleep(1000); }
-
-//            //Start the app
-//            appPool.Start();
-//        }
-//    }
-//}\
-
-
-
-
-// using (ServerManager serverManager = new ServerManager())
-//{
-//    ApplicationPool appPool = serverManager.ApplicationPools["testTask"];
-//    if (appPool != null)
-//    {
-//        appPool.Recycle();
-//        //if (appPool.State == ObjectState.Stopped)
-//        //{
-//        //    appPool.Recycle();
-//        //}
-
-//    }

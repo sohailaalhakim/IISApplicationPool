@@ -8,9 +8,9 @@
 
     <div>
         <div>
-             <div class="dropdownDiv">
+             <div class="dropdownDiv" onchange="onChangeDDL()">
                  @Html.DropDownList("AppPoolNames", new SelectList(Model.AppPoolNames), "أختر أسم", new { @class = "dropdown", id= "appPoolDropdown" })
-                 <small class="error-message"  id="DDL-error-message" style="color: red; display: none;"></small>
+                 <div class="error-message"  id="DDL-error-message" style="background: red; display: none;">error</div>
             </div>
          
             <div class="text-center">
@@ -20,9 +20,9 @@
 
             <div class="row">
                 <div class="col-md-10 btnBox">
-                    <button class="btn btn-info btn-lg" onclick="location.href='@Url.Action("Start", "Home")'" >أبدا</button>
-                    <button class="btn btn-secondary btn-lg" onclick="location.href='@Url.Action("Recycle", "Home")'">أعاده التشغيل</button>
-                    <button class="btn btn-primary btn-lg" onclick="location.href='@Url.Action("Stop", "Home")'">ايقاف</button>
+                    <button class="btn btn-info btn-lg" onclick="startAppPool()">أبدا</button>
+                    <button class="btn btn-secondary btn-lg" onclick="recycleAppPool()">أعاده التشغيل</button>
+                    <button class="btn btn-primary btn-lg" onclick="stopAppPool()">ايقاف</button>
                 </div>
             </div>
 
@@ -33,17 +33,110 @@
 {
 
     <script>
-        document.getElementById("appPoolDropdown").addEventListener('change', function(){
+        //document.getElementById("appPoolDropdown").addEventListener('change', function(){
+        //    var selectedValue = document.getElementById("appPoolDropdown").value;
+        //        if (selectedValue === "أختر أسم") {
+        //            document.getElementById("statusStartedBadge").style.display = "none";
+        //            document.getElementById("statusStoppedBadge").style.display = "none";
+        //            document.getElementById("DDL-error-message").style.display="block";
+        //            document.getElementById("DDL-error-message").textContent = "nonononon";
+
+
+        //        }
+        //        else{
+        //              $.ajax({
+        //                url: '@Url.Action("GetAppPoolStatus", "Home")',
+        //                type: 'GET',
+        //                data: { appPoolName: selectedValue },
+        //                success: function (response) {
+        //                    if (response === "Started") {
+        //                        document.getElementById("statusStartedBadge").style.display = "block";
+        //                        document.getElementById("statusStoppedBadge").style.display = "none";
+
+        //                    } else {
+        //                      document.getElementById("statusStartedBadge").style.display = "none";
+        //                       document.getElementById("statusStoppedBadge").style.display = "block";
+        //                    }
+        //                },
+        //                error: function () {
+        //                     document.getElementById("statusStartedBadge").style.display = "none";
+        //                     document.getElementById("statusStoppedBadge").style.display = "none";
+        //                }
+        //            });
+        //        }
+        //})
+
+      function startAppPool() {
             var selectedValue = document.getElementById("appPoolDropdown").value;
-             console.log(selectedValue, "selected value ");
-                if (selectedValue === "أختر أسم") {
-                    document.getElementById("statusStartedBadge").style.display = "none";
-                    document.getElementById("statusStoppedBadge").style.display = "none";
-                    document.getElementById("DDL-error-message").style.display="block";
-                    document.getElementById("DDL-error-message").textContent = "nonononon";
+            if (selectedValue !== "أختر أسم") {
+                $.ajax({
+                    url: '@Url.Action("Start", "Home")',
+                    type: 'POST',
+                    data: { appPoolName: selectedValue }, // Send the selected value as data
+                    success: function (response) {
+                          location.reload();
+                    },
+                    error: function () {
+                        alert("error from start");
+                    }
+                });
+            }
+            else{
+                //TODO show error message that it must select option            
+            }
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////
+      function stopAppPool() {
+            var selectedValue = document.getElementById("appPoolDropdown").value;
+            console.log(selectedValue, "selected valueeee");
+            if (selectedValue !== "أختر أسم") {
+                $.ajax({
+                    url: '@Url.Action("Stop", "Home")',
+                    type: 'POST',
+                    //data: { appPoolName: selectedValue }, // Send the selected value as data
+                    data: { appPoolName: encodeURIComponent(selectedValue) },
+                    success: function (response) {
+                          location.reload();
+                    },
+                    error: function () {
+                        alert("error from stop");
+                    }
+                });
+            }
+            else{
+                //TODO show error message that it must select option            
+            }
+        }
+      ///////////////////////////////////////////////////////////////////////////////////////////////
+        function recycleAppPool() {
+            var selectedValue = document.getElementById("appPoolDropdown").value;
+            if (selectedValue !== "أختر أسم") {
+                $.ajax({
+                    url: '@Url.Action("Recycle", "Home")',
+                    type: 'POST',
+                    data: { appPoolName: selectedValue },
+                    success: function (response) {
+                        location.reload();
+                    },
+                    error: function () {
+                        alert("error from recycle");
+                    }
+                });
+            }
+             else{
+                //TODO show error message that it must select option            
+            }
+        }
+      ///////////////////////////////////////////////////////////////////////////////////////////////
 
-
-                }
+    function onChangeDDL () {
+                 const stoppedBadge = document.getElementById("statusStoppedBadge");
+                 const startedBadge = document.getElementById("statusStartedBadge")
+                 var selectedValue = document.getElementById("appPoolDropdown").value;
+                  if (selectedValue === "أختر أسم") {
+                       startedBadge.style.display = "none";
+                       stoppedBadge.style.display = "none";
+                   }
                 else{
                       $.ajax({
                         url: '@Url.Action("GetAppPoolStatus", "Home")',
@@ -51,22 +144,24 @@
                         data: { appPoolName: selectedValue },
                         success: function (response) {
                             if (response === "Started") {
-                                document.getElementById("statusStartedBadge").style.display = "block";
-                                document.getElementById("statusStoppedBadge").style.display = "none";
+                                   startedBadge.style.display = "block";
+                                   stoppedBadge.style.display = "none";
 
-                            } else {
-                              document.getElementById("statusStartedBadge").style.display = "none";
-                               document.getElementById("statusStoppedBadge").style.display = "block";
+                            } else if(response === "Stopped") {
+                                  stoppedBadge.style.display = "block";
+                                  startedBadge.style.display = "none";
+                            }
+                            else{
+                                  stoppedBadge.style.display = "none";
+                                  startedBadge.style.display = "none"
                             }
                         },
                         error: function () {
-                             document.getElementById("statusStartedBadge").style.display = "none";
-                             document.getElementById("statusStoppedBadge").style.display = "none";
+                         alert("error from onchangeDDL function");
                         }
                     });
                 }
-        })
-
+    }
 
     </script>
 
