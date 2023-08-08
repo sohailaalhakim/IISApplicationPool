@@ -10,7 +10,7 @@
         <div>
              <div class="dropdownDiv" onchange="onChangeDDL()">
                  @Html.DropDownList("AppPoolNames", new SelectList(Model.AppPoolNames), "أختر أسم", new { @class = "dropdown", id= "appPoolDropdown" })
-                 <div class="error-message"  id="DDL-error-message" style="background: red; display: none;">error</div>
+                  <small class="error-message" id="DDL-error-message" style="color: red;font-size:15px; display: none;"></small>
             </div>
          
             <div class="text-center">
@@ -34,103 +34,102 @@
 
     <script>
 
-      function startAppPool() {
-            var selectedValue = document.getElementById("appPoolDropdown").value;
-            if (selectedValue !== "أختر أسم") {
-                $.ajax({
-                    url: '@Url.Action("Start", "Home")',
-                    type: 'POST',
-                    data: { appPoolName: selectedValue }, // Send the selected value as data
-                    success: function (response) {
-                          location.reload();
-                    },
-                    error: function () {
-                        alert("error from start");
-                    }
-                });
-            }
-            else{
-                //TODO show error message that it must select option            
-            }
+       function startAppPool() {
+            const selectedValue = document.getElementById("appPoolDropdown").value;
+            //  AJAX call to actiion
+            $.ajax({
+                url: '@Url.Action("Start", "Home")',
+                type: 'POST',
+                data: { appPoolName: selectedValue },  // Send the selected value as data
+                success: function (response) {
+                   OnSuccessFunc(response);
+                },
+                error: function () {
+                }
+            });
         }
+
         //////////////////////////////////////////////////////////////////////////////////////////////
       function stopAppPool() {
-            var selectedValue = document.getElementById("appPoolDropdown").value;
-            console.log(selectedValue, "selected valueeee");
-            if (selectedValue !== "أختر أسم") {
+            const selectedValue = document.getElementById("appPoolDropdown").value;
                 $.ajax({
                     url: '@Url.Action("Stop", "Home")',
                     type: 'POST',
-                    //data: { appPoolName: selectedValue }, // Send the selected value as data
-                    data: { appPoolName: encodeURIComponent(selectedValue) },
+                    data: { appPoolName: selectedValue }, 
                     success: function (response) {
-                          location.reload();
+                        OnSuccessFunc(response);
                     },
                     error: function () {
                         alert("error from stop");
                     }
                 });
-            }
-            else{
-                //TODO show error message that it must select option            
-            }
         }
       ///////////////////////////////////////////////////////////////////////////////////////////////
         function recycleAppPool() {
             var selectedValue = document.getElementById("appPoolDropdown").value;
-            if (selectedValue !== "أختر أسم") {
                 $.ajax({
                     url: '@Url.Action("Recycle", "Home")',
                     type: 'POST',
                     data: { appPoolName: selectedValue },
                     success: function (response) {
-                        location.reload();
+                        OnSuccessFunc(response);
                     },
                     error: function () {
                         alert("error from recycle");
                     }
                 });
-            }
-             else{
-                //TODO show error message that it must select option            
-            }
         }
       ///////////////////////////////////////////////////////////////////////////////////////////////
+         function OnSuccessFunc(res){
+         const errorMessage = document.getElementById("DDL-error-message");
 
-    function onChangeDDL () {
-                 const stoppedBadge = document.getElementById("statusStoppedBadge");
-                 const startedBadge = document.getElementById("statusStartedBadge")
-                 var selectedValue = document.getElementById("appPoolDropdown").value;
-                  if (selectedValue === "أختر أسم") {
-                       startedBadge.style.display = "none";
-                       stoppedBadge.style.display = "none";
-                   }
-                else{
-                      $.ajax({
-                        url: '@Url.Action("GetAppPoolStatus", "Home")',
-                        type: 'GET',
-                        data: { appPoolName: selectedValue },
-                        success: function (response) {
-                            if (response === "Started") {
-                                   startedBadge.style.display = "block";
-                                   stoppedBadge.style.display = "none";
+         if(res === "InvalidAppPool"){
+                 errorMessage.style.display = "block";
+                 errorMessage.textContent = "برجاء أختر أسم";
+         } else {
+                errorMessage.style.display = "none";
+                location.reload();
+            }
+         }
+     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-                            } else if(response === "Stopped") {
-                                  stoppedBadge.style.display = "block";
-                                  startedBadge.style.display = "none";
-                            }
-                            else{
-                                  stoppedBadge.style.display = "none";
-                                  startedBadge.style.display = "none"
-                            }
-                        },
-                        error: function () {
-                         alert("error from onchangeDDL function");
+         function onChangeDDL() {
+            const stoppedBadge = document.getElementById("statusStoppedBadge");
+            const startedBadge = document.getElementById("statusStartedBadge");
+            const errorMessage = document.getElementById("DDL-error-message");
+            const selectedValue = document.getElementById("appPoolDropdown").value;
+
+            if (selectedValue === "أختر أسم") {
+                startedBadge.style.display = "none";
+                stoppedBadge.style.display = "none";
+                errorMessage.style.display = "block";
+                errorMessage.textContent = "برجاء أختر أسم";
+            } else {
+                errorMessage.style.display = "none";
+                $.ajax({
+                    url: '@Url.Action("GetAppPoolStatus", "Home")',
+                    type: 'GET',
+                    data: { appPoolName: selectedValue },
+                    success: function (response) {
+                        if (response === "Started") {
+                            startedBadge.style.display = "block";
+                            stoppedBadge.style.display = "none";
+                        } else if (response === "Stopped") {
+                            stoppedBadge.style.display = "block";
+                            startedBadge.style.display = "none";
+                        } else {
+                            stoppedBadge.style.display = "none";
+                            startedBadge.style.display = "none";
                         }
-                    });
-                }
-    }
-
+                    },
+                    error: function () {
+                        alert("Error from onChangeDDL function");
+                    }
+                });
+            }
+        }
     </script>
 
 }
+        
+

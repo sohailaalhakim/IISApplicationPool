@@ -36,6 +36,11 @@ namespace ApplicationPoolTask.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(appPoolName) || appPoolName == "أختر أسم")
+                {
+                    return Json("InvalidAppPool");
+
+                }
                 using (ServerManager iisManager = new ServerManager())
                 {
                     var appPool = iisManager.ApplicationPools[appPoolName];
@@ -50,16 +55,18 @@ namespace ApplicationPoolTask.Controllers
                         {
                             appPool.Recycle();
                         }
+                     
                     }
+                    
                 }
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine("Application Pool Name Invalid",ex.Message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex.Message);
                 throw;
             }
             return RedirectToAction("Index");
@@ -69,6 +76,11 @@ namespace ApplicationPoolTask.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(appPoolName) || appPoolName == "أختر أسم")
+                {
+                    return Json("InvalidAppPool");
+
+                }
                 using (ServerManager iisManager = new ServerManager())
                 {
                     var appPool = iisManager.ApplicationPools[appPoolName];
@@ -88,7 +100,7 @@ namespace ApplicationPoolTask.Controllers
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine("Application Pool Name Invalid", ex.Message);
             }
             catch (Exception ex)
             {
@@ -102,6 +114,11 @@ namespace ApplicationPoolTask.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(appPoolName) || appPoolName == "أختر أسم")
+                {
+                    return Json("InvalidAppPool");
+
+                }
                 using (ServerManager serverManager = new ServerManager())
                 {
                     ApplicationPool appPool = serverManager.ApplicationPools[appPoolName];
@@ -135,6 +152,10 @@ namespace ApplicationPoolTask.Controllers
                     }
                 }
             }
+            catch (System.Runtime.InteropServices.COMException ex)
+            {
+                Console.WriteLine("Application Pool Name Invalid", ex.Message);
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
@@ -166,13 +187,12 @@ namespace ApplicationPoolTask.Controllers
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine("Application Pool Name Invalid", ex.Message);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
-
 
             return Content("Not Found");
         }
