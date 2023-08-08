@@ -33,38 +33,6 @@
 {
 
     <script>
-        //document.getElementById("appPoolDropdown").addEventListener('change', function(){
-        //    var selectedValue = document.getElementById("appPoolDropdown").value;
-        //        if (selectedValue === "أختر أسم") {
-        //            document.getElementById("statusStartedBadge").style.display = "none";
-        //            document.getElementById("statusStoppedBadge").style.display = "none";
-        //            document.getElementById("DDL-error-message").style.display="block";
-        //            document.getElementById("DDL-error-message").textContent = "nonononon";
-
-
-        //        }
-        //        else{
-        //              $.ajax({
-        //                url: '@Url.Action("GetAppPoolStatus", "Home")',
-        //                type: 'GET',
-        //                data: { appPoolName: selectedValue },
-        //                success: function (response) {
-        //                    if (response === "Started") {
-        //                        document.getElementById("statusStartedBadge").style.display = "block";
-        //                        document.getElementById("statusStoppedBadge").style.display = "none";
-
-        //                    } else {
-        //                      document.getElementById("statusStartedBadge").style.display = "none";
-        //                       document.getElementById("statusStoppedBadge").style.display = "block";
-        //                    }
-        //                },
-        //                error: function () {
-        //                     document.getElementById("statusStartedBadge").style.display = "none";
-        //                     document.getElementById("statusStoppedBadge").style.display = "none";
-        //                }
-        //            });
-        //        }
-        //})
 
       function startAppPool() {
             var selectedValue = document.getElementById("appPoolDropdown").value;
